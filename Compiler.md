@@ -1,0 +1,363 @@
+### Compiler
+
+
+
+#### tsc 명령어
+
+```
+$ npx tsc
+Version 3.5.3
+Syntax:   tsc [options] [file...]
+
+Examples: tsc hello.ts
+          tsc --outFile file.js file.ts
+          tsc @args.txt
+          tsc --build tsconfig.json
+
+Options:
+ -h, --help                                         Print this message.
+ -w, --watch                                        Watch input files.
+ --pretty                                           Stylize errors and messages using color and context (experimental).
+ --all                                              Show all compiler options.
+ -v, --version                                      Print the compiler's version.
+ --init                                             Initializes a TypeScript project and creates a tsconfig.json file.
+ -p FILE OR DIRECTORY, --project FILE OR DIRECTORY  Compile the project given the path to its configuration file, or to a folder with a 'tsconfig.json'.
+ -b, --build                                        Build one or more projects and their dependencies, if out of date
+ -t VERSION, --target VERSION                       Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019' or 'ESNEXT'.
+ -m KIND, --module KIND                             Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'.
+ --lib                                              Specify library files to be included in the compilation.
+                                                      'es5' 'es6' 'es2015' 'es7' 'es2016' 'es2017' 'es2018' 'es2019' 'es2020' 'esnext' 'dom' 'dom.iterable' 'webworker' 'webworker.importscripts' 'scripthost' 'es2015.core' 'es2015.collection' 'es2015.generator' 'es2015.iterable' 'es2015.promise' 'es2015.proxy' 'es2015.reflect' 'es2015.symbol' 'es2015.symbol.wellknown' 'es2016.array.include' 'es2017.object' 'es2017.sharedmemory' 'es2017.string' 'es2017.intl' 'es2017.typedarrays' 'es2018.asynciterable' 'es2018.intl' 'es2018.promise' 'es2018.regexp' 'es2019.array' 'es2019.object' 'es2019.string' 'es2019.symbol' 'es2020.string' 'es2020.symbol.wellknown' 'esnext.array' 'esnext.symbol' 'esnext.asynciterable' 'esnext.intl' 'esnext.bigint' 
+ --allowJs                                          Allow javascript files to be compiled.
+ --jsx KIND                                         Specify JSX code generation: 'preserve', 'react-native', or 'react'.
+ -d, --declaration                                  Generates corresponding '.d.ts' file.
+ --declarationMap                                   Generates a sourcemap for each corresponding '.d.ts' file.
+ --sourceMap                                        Generates corresponding '.map' file.
+ --outFile FILE                                     Concatenate and emit output to single file.
+ --outDir DIRECTORY                                 Redirect output structure to the directory.
+ --removeComments                                   Do not emit comments to output.
+ --noEmit                                           Do not emit outputs.
+ --strict                                           Enable all strict type-checking options.
+ --noImplicitAny                                    Raise error on expressions and declarations with an implied 'any' type.
+ --strictNullChecks                                 Enable strict null checks.
+ --strictFunctionTypes                              Enable strict checking of function types.
+ --strictBindCallApply                              Enable strict 'bind', 'call', and 'apply' methods on functions.
+ --strictPropertyInitialization                     Enable strict checking of property initialization in classes.
+ --noImplicitThis                                   Raise error on 'this' expressions with an implied 'any' type.
+ --alwaysStrict                                     Parse in strict mode and emit "use strict" for each source file.
+ --noUnusedLocals                                   Report errors on unused locals.
+ --noUnusedParameters                               Report errors on unused parameters.
+ --noImplicitReturns                                Report error when not all code paths in function return a value.
+ --noFallthroughCasesInSwitch                       Report errors for fallthrough cases in switch statement.
+ --types                                            Type declaration files to be included in compilation.
+ --esModuleInterop                                  Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'.
+ @<file>                                            Insert command line options and files from a file.
+```
+
+<br>
+
+#### --target
+
+$ tsc hello.ts
+
+```typescript
+/*** hello.ts ***/
+var hello1 = 'hello1'
+let hello2 = 'hello2'
+
+/*** hello.js ***/
+var hello1 = 'hello1';
+var hello2 = 'hello2';
+```
+
+> let 이 var 로 변경, **구형 브라우저의 지원을 고려한 컴파일**
+
+<br>
+
+$ tsc hello.ts --target es6
+
+```typescript
+/*** hello.ts ***/
+var hello1 = 'hello1'
+let hello2 = 'hello2'
+
+/*** hello.js ***/
+var hello1 = 'hello1';
+let hello2 = 'hello2';
+```
+
+> 특정 버전의 브라우저 환경을 지원하기 위해 **target 옵션** 설정
+
+<br>
+
+#### --lib
+
+$ tsc hello.ts
+
+```typescript
+/*** hello.ts ***/
+let timeoutPromise = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve('1 sec')
+  }, 1000)
+})
+
+timeoutPromise.then(console.log)
+
+/*** 컴파일 결과 ***/
+hello.ts:1:26 - error TS2585: 'Promise' only refers to a type, but is being used as a value here. Do you need to change your target library? Try changing the `lib` compiler option to es2015 or later.
+
+1 let timeoutPromise = new Promise((resolve, reject) => {
+                           ~~~~~~~
+Found 1 error.
+```
+
+> Promise 는 es6 이후에 나왔는데, es5 버전으로 컴파일하면 찾을 수 없다는 에러와 함께 컴파일 실패. **es5 에서 Promise 를 지원하기 위해서는 별도의 폴리필이 필요**하다.  Promise 를 지원하는 별도의 라이브러리가 존재한다고 생각할 수 있음. 이 라이브러리를 스크립트 태그로 전역에 추가하면 이 코드가 동작되는데 문제가 없기 때문에 그것을 타입스크립트에게 알려야 하는데, **lib 옵션**을 통해 해결할 수 있다.
+
+<br>
+
+$ tsc hello.ts --lib es2015.promise
+
+```typescript
+error TS2318: Cannot find global type 'Array'.
+error TS2318: Cannot find global type 'Boolean'.
+error TS2318: Cannot find global type 'Function'.
+error TS2318: Cannot find global type 'IArguments'.
+error TS2318: Cannot find global type 'Number'.
+error TS2318: Cannot find global type 'Object'.
+error TS2318: Cannot find global type 'RegExp'.
+error TS2318: Cannot find global type 'String'.
+```
+
+> lib 옵션에서는 es2015.promise 와 같이 주면, 다른 형태의 에러가 발생한다.
+
+<br>
+
+$ tsc hello.ts --lib es5,es2015.promise
+
+```
+hello.ts:2:3 - error TS2304: Cannot find name 'setTimeout'.
+
+2   setTimeout(() => {
+    ~~~~~~~~~~
+
+hello.ts:7:21 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the `lib` compiler option to include 'dom'.
+
+7 timeoutPromise.then(console.log)
+                      ~~~~~~~
+node_modules/typescript/lib/lib.es2015.promise.d.ts:129:21 - error TS2304: Cannot find name 'Iterable'.
+
+129     race<T>(values: Iterable<T>): Promise<T extends PromiseLike<infer U> ? U : T>;
+                        ~~~~~~~~
+Found 3 errors.
+```
+
+
+
+<br>
+
+$ tsc hello.ts --lib es5,es2015.promise,es2015.iterable
+
+```
+hello.ts:2:3 - error TS2304: Cannot find name 'setTimeout'.
+
+2   setTimeout(() => {
+    ~~~~~~~~~~
+
+hello.ts:7:21 - error TS2584: Cannot find name 'console'. Do you need to change your target library? Try changing the `lib` compiler option to include 'dom'.
+
+7 timeoutPromise.then(console.log)
+                      ~~~~~~~
+
+Found 2 errors.
+```
+
+
+
+<br>
+
+$ tsc hello.ts --lib es5,es2015.promise,es2015.iterable,dom
+
+```js
+/*** hello.js ***/
+var timeoutPromise = new Promise(function (resolve, reject) {
+    setTimeout(function () {
+        resolve('1 sec');
+    }, 1000);
+});
+timeoutPromise.then(console.log);
+```
+
+> 정상 컴파일 완료 
+>
+> dom API 에 대한 옵션은 디폴트로 설정되어 있지만, 직접 설정시 이렇게 넣어주어야 한다. dom 을 옵션에 포함시켜야 콘솔 API 를 사용할 수 있다.
+>
+> 컴파일 결과를 보면 arrow function 은 es5의 일반 함수처럼 모양이 바뀌었다. 하지만 Promise 는 그대로 남아있다. 하지만, Promise 는 그대로 있다. Promise 라는 라이브러리가 전역으로 폴리필 어디에 있어야 하고, 런타임에만 실행되고 평가가 되는데, 이때 Promise 를 전역에서 찾게 된다. 그렇기 때문에 타입스크립트로 작성 후 컴파일하는 시점에서는 문제가 발생하지 않는 것이다. 
+>
+> 즉, 라이브러리 옵션을 통해 전역이나 타입스크립트를 쓰는 타입들이 어디까지 제공되는지 컴파일러에게 알려줄 수 있다.
+
+<br>
+
+#### --module
+
+모듈시스템은 ES6 모듈시스템, commonJS 모듈 시스템 등이 있음.
+
+타입스크립트가 컴파일할 때 어떤 모듈 시스템을 쓸 수 있는지를 정의할 수 있다.
+
+```ts
+/*** util.ts ***/
+
+export default function add(a, b) {
+  return a + b;
+}
+```
+
+```ts
+/*** hello.ts ***/
+
+let timeoutPromise = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve('1 sec')
+  }, 1000)
+})
+
+import add from './util'
+const res = add(1, 2)
+console.log(res)
+```
+
+<br>
+
+$ tsc hello.ts --lib es2015,dom 
+
+```js
+/*** hello.js ***/
+"use strict";
+exports.__esModule = true;
+var timeoutPromise = new Promise(function (resolve, reject) {
+    setTimeout(function () {
+        resolve('1 sec');
+    }, 1000);
+});
+var util_1 = require("./util");
+var res = util_1["default"](1, 2);
+console.log(res);
+
+```
+
+> --lib 옵션으로 es2015 에 대한 모든 라이브러리를 추가함.
+>
+> 컴파일 결과 import, from 으로 했던 것이 require 로 변경되어있다. 기본적으로 es5 는 commonJS 모듈시스템을 사용하기 때문이다. 
+>
+> `node hello.js` 로 실행할 수 있다. 
+
+<br>
+
+$ tsc hello.ts --target es6 --lib es2015,dom 
+
+```js
+/*** util.js ***/
+export default function add(a, b) {
+    return a + b;
+}
+```
+
+```js
+/*** hello.js ***/
+let timeoutPromise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve('1 sec');
+    }, 1000);
+});
+import add from './util';
+const res = add(1, 2);
+console.log(res);
+```
+
+> --target 을 es6 로 설정한 결과로 es6 모듈 시스템을 사용하게 된다. 그렇기 때문에 화살표 함수나 let 키워드가 그대로 유지가 된다. 
+
+<br>
+
+$ node hell.js
+
+```
+import add from './util';
+       ^^^
+
+SyntaxError: Unexpected identifier
+    at new Script (vm.js:79:7)
+    at createScript (vm.js:251:10)
+    at Object.runInThisContext (vm.js:303:10)
+    at Module._compile (internal/modules/cjs/loader.js:657:28)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:282:19)
+```
+
+> node 로 실행을 하게 되면 위와 같이 신택스 에러가 발생한다. 현재 node 버전에서는 (컴파일 당시 버전 10.14) commonJS 모듈시스템을 사용하게 되어있기 때문에 그렇다. 
+
+<br>
+
+타겟은 es6 이지만, 모듈시스템은 commonJS 형태로 바꿀 수 있다.
+
+$ tsc hello.ts --target es6 --lib es2015,dom --module commonjs
+
+```js
+/*** hello.js ***/
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+let timeoutPromise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve('1 sec');
+    }, 1000);
+});
+const util_1 = require("./util");
+const res = util_1.default(1, 2);
+console.log(res);
+```
+
+```js
+/*** util.js ***/
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+function add(a, b) {
+    return a + b;
+}
+exports.default = add;
+```
+
+> commonJS 형태의 모듈시스템인 require 를 이용하게 된다. 
+>
+> 이와 같이 --module 옵션을 통해 원하는 형태의 모듈시스템으로 변경하여 컴파일 된 JS 파일을 생성할 수 있다. 
+
+<br>
+
+#### --showConfig
+
+TS 최신버전(현재 기준 Version 3.6.2)에서는 위 옵션을 통해 현재 어떤 옵션이 적용되었는지 확인할 수 있다. (참고로 2.9.2 버전에서는 지원이 안되었다.)
+
+```
+$ npx tsc hello.ts --target es6 --lib es2015,dom --module commonjs --showConfig
+{
+    "compilerOptions": {
+        "target": "es6",
+        "lib": [
+            "es6",
+            "dom"
+        ],
+        "module": "commonjs"
+    },
+    "files": [
+        "./hello.ts"
+    ]
+}
+```
+
+
+
+<br>
+
+#### Author by Harry.
+
